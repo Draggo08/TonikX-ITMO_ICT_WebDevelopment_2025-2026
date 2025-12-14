@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12">
         <h1>Номера</h1>
-        <v-btn color="primary" @click="showDialog = true" class="mb-4">Добавить номер</v-btn>
+        <v-btn color="primary" @click="openDialog" class="mb-4">Добавить номер</v-btn>
       </v-col>
       <v-col cols="12">
         <v-data-table
@@ -35,9 +35,9 @@
       <v-card>
         <v-card-title>{{ editingRoom ? 'Редактировать' : 'Добавить' }} номер</v-card-title>
         <v-card-text>
-          <v-form ref="form">
+          <v-form>
             <v-text-field v-model="form.number" label="Номер"></v-text-field>
-            <v-select v-model="form.room_type" :items="roomTypes" label="Тип"></v-select>
+            <v-select v-model="form.room_type" :items="roomTypes" item-title="title" item-value="value" label="Тип"></v-select>
             <v-text-field v-model.number="form.floor" label="Этаж" type="number"></v-text-field>
             <v-text-field v-model="form.price_per_night" label="Цена за сутки"></v-text-field>
             <v-text-field v-model="form.phone" label="Телефон"></v-text-field>
@@ -46,7 +46,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="showDialog = false">Отмена</v-btn>
+          <v-btn @click="closeDialog">Отмена</v-btn>
           <v-btn color="primary" @click="saveRoom">Сохранить</v-btn>
         </v-card-actions>
       </v-card>
@@ -95,6 +95,28 @@ export default {
       return found ? found.title : type
     }
 
+    const resetForm = () => {
+      form.value = {
+        number: '',
+        room_type: 'single',
+        floor: 1,
+        price_per_night: '',
+        phone: '',
+        is_occupied: false
+      }
+      editingRoom.value = null
+    }
+
+    const openDialog = () => {
+      resetForm()
+      showDialog.value = true
+    }
+
+    const closeDialog = () => {
+      showDialog.value = false
+      resetForm()
+    }
+
     const loadRooms = async () => {
       loading.value = true
       try {
@@ -114,16 +136,7 @@ export default {
         } else {
           await hotelAPI.rooms.create(form.value)
         }
-        showDialog.value = false
-        editingRoom.value = null
-        form.value = {
-          number: '',
-          room_type: 'single',
-          floor: 1,
-          price_per_night: '',
-          phone: '',
-          is_occupied: false
-        }
+        closeDialog()
         loadRooms()
       } catch (error) {
         console.error('Error saving room:', error)
@@ -162,7 +175,9 @@ export default {
       getRoomType,
       saveRoom,
       editRoom,
-      deleteRoom
+      deleteRoom,
+      openDialog,
+      closeDialog
     }
   }
 }

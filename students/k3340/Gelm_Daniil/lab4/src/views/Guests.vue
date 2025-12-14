@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12">
         <h1>Клиенты</h1>
-        <v-btn color="primary" @click="showDialog = true" class="mb-4">Добавить клиента</v-btn>
+        <v-btn color="primary" @click="openDialog" class="mb-4">Добавить клиента</v-btn>
       </v-col>
       <v-col cols="12">
         <v-data-table
@@ -37,7 +37,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="showDialog = false">Отмена</v-btn>
+          <v-btn @click="closeDialog">Отмена</v-btn>
           <v-btn color="primary" @click="saveGuest">Сохранить</v-btn>
         </v-card-actions>
       </v-card>
@@ -73,6 +73,27 @@ export default {
       { title: 'Действия', key: 'actions' }
     ]
 
+    const resetForm = () => {
+      form.value = {
+        passport_number: '',
+        last_name: '',
+        first_name: '',
+        middle_name: '',
+        city: ''
+      }
+      editingGuest.value = null
+    }
+
+    const openDialog = () => {
+      resetForm()
+      showDialog.value = true
+    }
+
+    const closeDialog = () => {
+      showDialog.value = false
+      resetForm()
+    }
+
     const loadGuests = async () => {
       loading.value = true
       try {
@@ -92,15 +113,7 @@ export default {
         } else {
           await hotelAPI.guests.create(form.value)
         }
-        showDialog.value = false
-        editingGuest.value = null
-        form.value = {
-          passport_number: '',
-          last_name: '',
-          first_name: '',
-          middle_name: '',
-          city: ''
-        }
+        closeDialog()
         loadGuests()
       } catch (error) {
         console.error('Error saving guest:', error)
@@ -137,7 +150,9 @@ export default {
       form,
       saveGuest,
       editGuest,
-      deleteGuest
+      deleteGuest,
+      openDialog,
+      closeDialog
     }
   }
 }
