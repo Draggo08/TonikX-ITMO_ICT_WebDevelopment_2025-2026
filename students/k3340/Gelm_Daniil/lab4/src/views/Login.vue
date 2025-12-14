@@ -47,7 +47,12 @@ export default {
       error.value = ''
       const result = await login(username.value, password.value)
       if (!result.success) {
-        error.value = result.error?.non_field_errors?.[0] || 'Ошибка входа'
+        const err = result.error
+        if (err?.non_field_errors) {
+          error.value = Array.isArray(err.non_field_errors) ? err.non_field_errors[0] : err.non_field_errors
+        } else {
+          error.value = 'Ошибка входа'
+        }
       }
     }
 
@@ -55,3 +60,4 @@ export default {
   }
 }
 </script>
+

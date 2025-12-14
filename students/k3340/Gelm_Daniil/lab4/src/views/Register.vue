@@ -66,7 +66,7 @@ export default {
       const result = await register({
         username: username.value,
         password: password.value,
-        password_retype: passwordRetype.value
+        re_password: passwordRetype.value
       })
 
       if (result.success) {
@@ -75,7 +75,16 @@ export default {
           router.push('/login')
         }, 1500)
       } else {
-        error.value = result.error?.username?.[0] || result.error?.password?.[0] || 'Ошибка регистрации'
+        const err = result.error
+        if (err?.username) {
+          error.value = Array.isArray(err.username) ? err.username[0] : err.username
+        } else if (err?.password) {
+          error.value = Array.isArray(err.password) ? err.password[0] : err.password
+        } else if (err?.non_field_errors) {
+          error.value = Array.isArray(err.non_field_errors) ? err.non_field_errors[0] : err.non_field_errors
+        } else {
+          error.value = 'Ошибка регистрации'
+        }
       }
     }
 
@@ -83,3 +92,4 @@ export default {
   }
 }
 </script>
+
